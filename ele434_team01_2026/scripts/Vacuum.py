@@ -223,6 +223,7 @@ def main(args=None):
     )
     node = AutonomousNavigation()
     try:
+        time.sleep(3)
         rclpy.spin(node)
     except KeyboardInterrupt:
         print("Shutdown request detected..")
