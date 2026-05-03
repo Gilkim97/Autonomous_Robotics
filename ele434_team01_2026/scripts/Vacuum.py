@@ -47,19 +47,33 @@ class AutonomousNavigation(Node):
         self.current_yaw = 0.0
         self.scan_data = None
 
+        # self.waypoints = [
+        #     (1.5, 1.5),
+        #     (1.5, 0.5),
+        #     (1.5, -0.5),
+        #     (1.5, -1.5),
+        #     (0.5, -1.5),
+        #     (-0.5, -1.5),
+        #     (-1.5, -1.5),
+        #     (-1.5, -0.5),
+        #     (-1.5, 0.5),
+        #     (-1.5, 1.5),
+        #     (-0.5, 1.5),
+        #     (0.5, 1.5)
+        # ]
         self.waypoints = [
-            (1.5, 1.5),
-            (1.5, 0.5),
-            (1.5, -0.5),
-            (1.5, -1.5),
-            (0.5, -1.5),
-            (-0.5, -1.5),
-            (-1.5, -1.5),
-            (-1.5, -0.5),
-            (-1.5, 0.5),
-            (-1.5, 1.5),
-            (-0.5, 1.5),
-            (0.5, 1.5)
+            (1.25, 1.25),
+            (1.25, 0.25),
+            (1.25, -0.25),
+            (1.25, -1.25),
+            (0.25, -1.25),
+            (-0.5, -1.25),
+            (-1.25, -1.25),
+            (-1.25, -0.25),
+            (-1.25, 0.25),
+            (-1.25, 1.25),
+            (-0.25, 1.25),
+            (0.25, 1.25)
         ]
         # self.waypoints = [
         #     (1.5, -0.5),
@@ -81,7 +95,7 @@ class AutonomousNavigation(Node):
         self.distance_safe = 0.4
         self.max_speed = 0.26
         self.max_angular_speed = 1.82
-        self.goal_tolerance = 0.5
+        self.goal_tolerance = 0.2
         self.bubble_radius_deg = 35
         self.get_logger().info(f"The '{self.get_name()}' node is initialised.")
 
@@ -161,17 +175,17 @@ class AutonomousNavigation(Node):
             # If the wall is on our left (positive angle), steer right. Else, steer left.
             msg.twist.angular.z = -self.max_angular_speed if min_angle_front > 0 else self.max_angular_speed
 
-        elif dist_center > 0.45:
+        elif dist_center > 0.4:
             # CLEAR PATH: The center is open and the sides are safe. Race to waypoint!
             self.evade_direction = 0.0
             msg.twist.linear.x = self.max_speed
             msg.twist.angular.z = 2.0 * goal_angle_local
             if dist_left < 0.32:
                 self.get_logger().info('Passing object on Left...')
-                msg.twist.angular.z = 0.6  # Push gently right
+                msg.twist.angular.z = 0.3  # Push gently right
             elif dist_right < 0.32:
                 self.get_logger().info('Passing object on Right...')
-                msg.twist.angular.z = -0.6   # Push gently left
+                msg.twist.angular.z = -0.3   # Push gently left
             else:
                 # Both sides are safe. Race to the waypoint!
                 msg.twist.angular.z = 2.0 * goal_angle_local
@@ -179,7 +193,7 @@ class AutonomousNavigation(Node):
         else:
             # CENTER BLOCKED: The wall is in front of us, but not touching the bumper yet.
             self.get_logger().warn(f'EVADING! Center blocked at {dist_center:.2f}m')
-            msg.twist.linear.x = 0.0
+            msg.twist.linear.x = 0.01
 
             if self.evade_direction == 0.0:
                 self.evade_direction = 1.0 if dist_left > dist_right else -1.0
